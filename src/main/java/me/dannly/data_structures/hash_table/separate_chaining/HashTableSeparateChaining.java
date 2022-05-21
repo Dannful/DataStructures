@@ -1,6 +1,7 @@
 package me.dannly.data_structures.hash_table.separate_chaining;
 
 import me.dannly.data_structures.hash_table.Entry;
+import me.dannly.data_structures.hash_table.HashTable;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -8,18 +9,12 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unchecked")
-public class HashTableSeparateChaining<K, V> {
+public class HashTableSeparateChaining<K, V> extends HashTable<K, V> {
 
-    private static final int DEFAULT_CAPACITY = 3;
-    private static final float DEFAULT_LOAD_FACTOR = 0.7f;
-    private final float loadFactor;
     private LinkedList<Entry<K, V>>[] buckets;
-    private int capacity;
-    private int bucketCount = 0;
 
     public HashTableSeparateChaining(int capacity, float loadFactor) {
-        this.capacity = capacity;
-        this.loadFactor = loadFactor;
+        super(capacity, loadFactor);
         this.buckets = new LinkedList[capacity];
     }
 
@@ -27,10 +22,12 @@ public class HashTableSeparateChaining<K, V> {
         this(capacity, DEFAULT_LOAD_FACTOR);
     }
 
-    public HashTableSeparateChaining(float loadFactor) {
-        this(DEFAULT_CAPACITY, loadFactor);
+    @Override
+    protected int normalizeIndex(K key) {
+        return Math.abs(key.hashCode()) % capacity;
     }
 
+    @Override
     public void add(K key, V value) {
         if (key == null || value == null)
             return;
@@ -38,7 +35,7 @@ public class HashTableSeparateChaining<K, V> {
             if (linkedList == null) {
                 if (++bucketCount / (float) buckets.length > loadFactor) {
                     reallocBuckets();
-                    index = normalizeIndex(key.hashCode());
+                    index = normalizeIndex(key);
                 }
                 linkedList = new LinkedList<>();
                 buckets[index] = linkedList;
@@ -53,7 +50,8 @@ public class HashTableSeparateChaining<K, V> {
         });
     }
 
-    private void reallocBuckets() {
+    @Override
+    protected void reallocBuckets() {
         capacity *= 2;
         final List<Entry<K, V>> entryList = Arrays.stream(buckets).filter(Objects::nonNull).flatMap(LinkedList::stream).collect(Collectors.toList());
         Arrays.fill(buckets, null);
@@ -62,6 +60,7 @@ public class HashTableSeparateChaining<K, V> {
         entryList.forEach(entry -> add(entry.getKey(), entry.getValue()));
     }
 
+    @Override
     public void remove(K key) {
         onLinkedList(key, (index, linkedList) -> {
             if (linkedList == null || linkedList.stream().noneMatch(entry -> entry.getKey().equals(key)))
@@ -76,15 +75,13 @@ public class HashTableSeparateChaining<K, V> {
         });
     }
 
-    public boolean hasKey(K key) {
-        return findEntry(key) != null;
-    }
-
+    @Override
     public List<Entry<K, V>> getEntries() {
         return Arrays.stream(buckets).flatMap(LinkedList::stream).collect(Collectors.toList());
     }
 
-    private Entry<K, V> findEntry(K key) {
+    @Override
+    protected Entry<K, V> findEntry(K key) {
         return onLinkedList(key, (index, linkedList) -> {
             if (linkedList == null)
                 return null;
@@ -101,14 +98,10 @@ public class HashTableSeparateChaining<K, V> {
     }
 
     private <R> R onLinkedList(K key, BiFunction<Integer, LinkedList<Entry<K, V>>, R> action) {
-        final int index = normalizeIndex(key.hashCode());
+        final int index = normalizeIndex(key);
         if (index >= buckets.length)
             return null;
         final LinkedList<Entry<K, V>> linkedList = buckets[index];
         return action.apply(index, linkedList);
-    }
-
-    private int normalizeIndex(int hashCode) {
-        return Math.abs(hashCode) % capacity;
     }
 }
