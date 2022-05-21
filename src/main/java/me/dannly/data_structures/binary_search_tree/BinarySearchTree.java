@@ -76,7 +76,7 @@ public class BinarySearchTree<T extends Comparable<T>> {
     }
 
     private Node<T> findNode(Node<T> node, T element) {
-        if(node == null) return null;
+        if (node == null) return null;
         if (node.getValue().compareTo(element) == 0)
             return node;
         if (node.getLeft() == null && node.getRight() == null)

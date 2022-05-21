@@ -20,18 +20,18 @@ class HashTableSeparateChainingTest {
     @Test
     void add() {
         hashTableSeparateChaining.add("Christian", 91);
-        assertTrue(hashTableSeparateChaining.hasKey("Christian"));
+        assertTrue(hashTableSeparateChaining.containsKey("Christian"));
     }
 
     @Test
     void remove() {
         hashTableSeparateChaining.remove("Robert");
-        assertFalse(hashTableSeparateChaining.hasKey("Robert"));
+        assertFalse(hashTableSeparateChaining.containsKey("Robert"));
     }
 
     @Test
     void hasKey() {
-        assertTrue(hashTableSeparateChaining.hasKey("Robert"));
-        assertFalse(hashTableSeparateChaining.hasKey("Alexander"));
+        assertTrue(hashTableSeparateChaining.containsKey("Robert"));
+        assertFalse(hashTableSeparateChaining.containsKey("Alexander"));
     }
 }
