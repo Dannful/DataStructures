@@ -82,8 +82,8 @@ public class HashTableOpenAddressing<K, V> extends HashTable<K, V> {
             }
             if (stopOnNullOrTombstone && entry == null)
                 break;
-            if(entry != null && entry.getKey().equals(key)) {
-                if(tombstone != -1) {
+            if (entry != null && entry.getKey().equals(key)) {
+                if (tombstone != -1) {
                     buckets[tombstone] = entry;
                     buckets[index] = null;
                     index = tombstone;
