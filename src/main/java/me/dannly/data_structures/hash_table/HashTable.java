@@ -30,12 +30,14 @@ public abstract class HashTable<K, V> {
     }
 
     public V get(K key) {
-        return findEntry(key).getValue();
+        return findEntry(key).entry.getValue();
     }
 
-    protected abstract int normalizeIndex(K key);
+    protected int normalizeIndex(int index) {
+        return (index & Integer.MAX_VALUE) % capacity;
+    }
 
-    protected abstract Entry<K, V> findEntry(K key);
+    protected abstract EntryWithIndex<K, V> findEntry(K key);
 
     protected abstract void reallocBuckets();
 
