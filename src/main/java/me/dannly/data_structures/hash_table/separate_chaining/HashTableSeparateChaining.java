@@ -1,9 +1,13 @@
 package me.dannly.data_structures.hash_table.separate_chaining;
 
 import me.dannly.data_structures.hash_table.Entry;
+import me.dannly.data_structures.hash_table.EntryWithIndex;
 import me.dannly.data_structures.hash_table.HashTable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -23,11 +27,6 @@ public class HashTableSeparateChaining<K, V> extends HashTable<K, V> {
     }
 
     @Override
-    protected int normalizeIndex(K key) {
-        return Math.abs(key.hashCode()) % capacity;
-    }
-
-    @Override
     public void add(K key, V value) {
         if (key == null || value == null)
             return;
@@ -35,7 +34,7 @@ public class HashTableSeparateChaining<K, V> extends HashTable<K, V> {
             if (linkedList == null) {
                 if (++bucketCount / (float) buckets.length > loadFactor) {
                     reallocBuckets();
-                    index = normalizeIndex(key);
+                    index = normalizeIndex(key.hashCode());
                 }
                 linkedList = new LinkedList<>();
                 buckets[index] = linkedList;
@@ -65,7 +64,7 @@ public class HashTableSeparateChaining<K, V> extends HashTable<K, V> {
         onLinkedList(key, (index, linkedList) -> {
             if (linkedList == null || linkedList.stream().noneMatch(entry -> entry.getKey().equals(key)))
                 return;
-            linkedList.remove(findEntry(key));
+            linkedList.remove(findEntry(key).entry);
             if (!linkedList.isEmpty()) {
                 buckets[index] = linkedList;
             } else {
@@ -81,12 +80,17 @@ public class HashTableSeparateChaining<K, V> extends HashTable<K, V> {
     }
 
     @Override
-    protected Entry<K, V> findEntry(K key) {
+    protected EntryWithIndex<K, V> findEntry(K key) {
         return onLinkedList(key, (index, linkedList) -> {
             if (linkedList == null)
                 return null;
-            final Optional<Entry<K, V>> first = linkedList.stream().filter(e -> e.getKey().equals(key)).findFirst();
-            return first.orElse(null);
+            for (int i = 0; i < linkedList.size(); i++) {
+                final Entry<K, V> entry = linkedList.get(i);
+                if (entry.getKey().equals(key)) {
+                    return new EntryWithIndex<>(entry, i);
+                }
+            }
+            return null;
         });
     }
 
@@ -98,7 +102,7 @@ public class HashTableSeparateChaining<K, V> extends HashTable<K, V> {
     }
 
     private <R> R onLinkedList(K key, BiFunction<Integer, LinkedList<Entry<K, V>>, R> action) {
-        final int index = normalizeIndex(key);
+        final int index = normalizeIndex(key.hashCode());
         if (index >= buckets.length)
             return null;
         final LinkedList<Entry<K, V>> linkedList = buckets[index];
