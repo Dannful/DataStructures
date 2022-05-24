@@ -17,24 +17,37 @@ public class FenwickTree {
     }
 
     public int sum(int fromIndex, int toIndex) {
-        return retrieveSum(toIndex) - retrieveSum(fromIndex);
+        return retrieveSum(toIndex) - retrieveSum(fromIndex - 1);
+    }
+
+    public int sum(int index) {
+        return retrieveSum(index);
+    }
+
+    public int sum() {
+        return retrieveSum(elements.length - 1);
     }
 
     private int retrieveSum(int index) {
         int sum = 0;
-        for (; index >= 0; index -= lowestOneBit(index))
+        for (; index >= 0; index = ((index + 1) & ~lowestOneBit(index)) - 1)
             sum += elements[index];
         return sum;
     }
 
-    public void update(int index, int value) {
-        final int sum = value - elements[index];
+    public void add(int index, int value) {
         for (; index < elements.length; index += lowestOneBit(index)) {
-            elements[index] += sum;
+            elements[index] += value;
         }
     }
 
+    public void set(int index, int value) {
+        final int sum = value - elements[index];
+        add(index, sum);
+    }
+
     private int lowestOneBit(int index) {
-        return Integer.lowestOneBit(index + 1);
+        final int i = index + 1;
+        return i & -i;
     }
 }

@@ -16,12 +16,20 @@ class FenwickTreeTest {
 
     @Test
     void sum() {
-        assertEquals(15, fenwickTree.sum(-1, 4));
+        assertEquals(15, fenwickTree.sum());
+        assertEquals(6, fenwickTree.sum(2));
+        assertEquals(5, fenwickTree.sum(1, 2));
     }
 
     @Test
-    void update() {
-        fenwickTree.update(0, 5);
+    void add() {
+        fenwickTree.add(0, 5);
+        assertEquals(11, fenwickTree.sum(-1, 2));
+    }
+
+    @Test
+    void set() {
+        fenwickTree.set(0, 5);
         assertEquals(10, fenwickTree.sum(-1, 2));
     }
 }
