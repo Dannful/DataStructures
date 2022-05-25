@@ -3,7 +3,7 @@ package me.dannly.data_structures.suffix_array;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SuffixArrayTest {
 
@@ -11,11 +11,11 @@ class SuffixArrayTest {
 
     @BeforeEach
     void setUp() {
-        suffixArray = new SuffixArray("ABABAB");
+        suffixArray = new SuffixArray("AZAZA");
     }
 
     @Test
     void uniqueSuffixes() {
-        assertEquals(11, suffixArray.uniqueSuffixes());
+        assertEquals(9, suffixArray.uniqueSuffixes());
     }
 }

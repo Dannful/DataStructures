@@ -8,17 +8,20 @@ public class SuffixArray {
     private final String[] suffixArray;
 
     public SuffixArray(String input) {
-        final int length = input.length();
+        int length = input.length();
         suffixArray = new String[length];
         lcp = new int[length];
         lcp[0] = 0;
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < length; i++)
             suffixArray[i] = input.substring(i);
-        }
         Arrays.sort(suffixArray);
-        for (int i = 1; i < suffixArray.length; i++) {
-            final int last = i - 1;
-            lcp[i] = commonCharacters(suffixArray[i], suffixArray[last]);
+        buildLcp(lcp, suffixArray);
+    }
+
+    private void buildLcp(int[] lcp, String[] suffixes) {
+        for (int j = 1; j < lcp.length; j++) {
+            final int last = j - 1;
+            lcp[j] = commonCharactersCount(suffixes[j], suffixes[last]);
         }
     }
 
@@ -26,7 +29,7 @@ public class SuffixArray {
         return ((suffixArray.length * (suffixArray.length + 1)) >> 1) - Arrays.stream(lcp).sum();
     }
 
-    private int commonCharacters(String first, String second) {
+    public static int commonCharactersCount(String first, String second) {
         int common = 0;
         while (common < Math.min(first.length(), second.length()) && first.charAt(common) == second.charAt(common))
             common++;
