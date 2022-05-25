@@ -18,4 +18,9 @@ class SuffixArrayTest {
     void uniqueSuffixes() {
         assertEquals(9, suffixArray.uniqueSuffixes());
     }
+
+    @Test
+    void longestRepeatedSubstrings() {
+        assertEquals("AZA", String.join(", ", suffixArray.longestRepeatedSubstrings()));
+    }
 }

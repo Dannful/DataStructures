@@ -1,6 +1,8 @@
 package me.dannly.data_structures.suffix_array;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class SuffixArray {
 
@@ -23,6 +25,15 @@ public class SuffixArray {
             final int last = j - 1;
             lcp[j] = commonCharactersCount(suffixes[j], suffixes[last]);
         }
+    }
+
+    public String[] longestRepeatedSubstrings() {
+        final int max = Arrays.stream(lcp).max().orElse(0);
+        final List<String> list = new ArrayList<>();
+        for (int i = 0; i < lcp.length; i++)
+            if (lcp[i] == max)
+                list.add(suffixArray[i].substring(0, lcp[i]));
+        return list.toArray(new String[0]);
     }
 
     public int uniqueSuffixes() {
