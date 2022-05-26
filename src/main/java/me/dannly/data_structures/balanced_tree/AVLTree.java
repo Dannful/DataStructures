@@ -82,30 +82,27 @@ public class AVLTree<T extends Comparable<T>> {
     }
 
     private Node<T> rotateRight(Node<T> node) {
-        final Node<T> left = node.left;
-        node.left = left.right;
-        left.right = node;
-        update(left);
+        final Node<T> newParent = node.left;
+        node.left = newParent.right;
+        newParent.right = node;
         update(node);
-        return left;
+        update(newParent);
+        return newParent;
     }
 
     private Node<T> rotateLeft(Node<T> node) {
-        final Node<T> right = node.right;
-        node.right = right.left;
-        right.left = node;
-        update(right);
+        final Node<T> newParent = node.right;
+        node.right = newParent.left;
+        newParent.left = node;
         update(node);
-        return right;
+        update(newParent);
+        return newParent;
     }
 
     private void update(Node<T> node) {
         if (node == null) return;
-        int leftHeight = -1, rightHeight = -1;
-        if (node.left != null)
-            leftHeight = node.left.height;
-        if (node.right != null)
-            rightHeight = node.right.height;
+        final int leftHeight = node.left != null ? node.left.height : -1;
+        final int rightHeight = node.right != null ? node.right.height : -1;
         node.height = 1 + Math.max(leftHeight, rightHeight);
         node.balanceFactor = rightHeight - leftHeight;
     }
@@ -128,13 +125,19 @@ public class AVLTree<T extends Comparable<T>> {
         } else {
             count--;
             if (node.left == null) {
-                node = node.right;
+                return node.right;
             } else if (node.right == null) {
-                node = node.left;
+                return node.left;
             } else {
-                final Node<T> leftmost = digLeft(node.right);
-                node.value = leftmost.value;
-                node.right = remove(node.right, node.value);
+                if (node.left.height > node.right.height) {
+                    final Node<T> rightmost = digRight(node.left);
+                    node.value = rightmost.value;
+                    node.left = remove(node.left, node.value);
+                } else {
+                    final Node<T> leftmost = digLeft(node.right);
+                    node.value = leftmost.value;
+                    node.right = remove(node.right, node.value);
+                }
             }
         }
         update(node);
@@ -144,6 +147,12 @@ public class AVLTree<T extends Comparable<T>> {
     private Node<T> digLeft(Node<T> node) {
         while (node.left != null)
             node = node.left;
+        return node;
+    }
+
+    private Node<T> digRight(Node<T> node) {
+        while (node.right != null)
+            node = node.right;
         return node;
     }
 
