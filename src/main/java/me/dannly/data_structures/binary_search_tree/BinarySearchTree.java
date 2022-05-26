@@ -1,32 +1,95 @@
 package me.dannly.data_structures.binary_search_tree;
 
+import me.dannly.data_structures.binary_search_tree.TreeTraverseOrder;
+
 import java.util.function.Consumer;
 
 public class BinarySearchTree<T extends Comparable<T>> {
 
-    private Node<T> root = null;
-    private int count = 0;
+    private static class Node<T extends Comparable<T>> {
 
-    public void add(T element) {
+        public T value;
+        public Node<T> left;
+        public Node<T> right;
+
+        public Node(T value, Node<T> left, Node<T> right) {
+            this.value = value;
+            this.left = left;
+            this.right = right;
+        }
+
+        public void swap(Node<T> other) {
+            if (other == null) {
+                clear();
+                return;
+            }
+            value = other.value;
+            right = other.right;
+            left = other.left;
+        }
+
+        public void clear() {
+            value = null;
+            right = null;
+            left = null;
+        }
+    }
+
+    private
+    Node<T> root = null;
+    private
+    int count = 0;
+
+    public boolean contains(T value) {
+        return find(root, value) != null;
+    }
+
+    public void traverse(TreeTraverseOrder treeTraverseOrder, Consumer<T> action) {
+        traverse(root, treeTraverseOrder, action);
+    }
+
+    private void traverse(Node<T> node, final TreeTraverseOrder treeTraverseOrder, final Consumer<T> action) {
+        switch (treeTraverseOrder) {
+            case PREORDER: {
+                action.accept(node.value);
+                traverse(node.left, treeTraverseOrder, action);
+                traverse(node.right, treeTraverseOrder, action);
+                break;
+            }
+            case INORDER: {
+                traverse(node.left, treeTraverseOrder, action);
+                action.accept(node.value);
+                traverse(node.right, treeTraverseOrder, action);
+                break;
+            }
+            case POSTORDER: {
+                traverse(node.left, treeTraverseOrder, action);
+                traverse(node.right, treeTraverseOrder, action);
+                action.accept(node.value);
+                break;
+            }
+        }
+    }
+
+    public void insert(T element) {
         if (count == 0) {
             root = new Node<>(element, null, null);
             count++;
             return;
         }
-        if (contains(element))
-            return;
-        root = add(root, element);
+        if (contains(element)) return;
+        root = insert(root, element);
         count++;
     }
 
-    private Node<T> add(Node<T> node, T element) {
+    private Node<T> insert(Node<T> node, final T element) {
         if (node == null) {
             node = new Node<>(element, null, null);
         } else {
-            if (element.compareTo(node.getValue()) < 0) {
-                node.setLeft(add(node.getLeft(), element));
+            if (element.compareTo(node.value) < 0) {
+                node.left = insert(node.left, element);
             } else {
-                node.setRight(add(node.getRight(), element));
+                node.right = insert(node.right, element);
             }
         }
         return node;
@@ -39,76 +102,40 @@ public class BinarySearchTree<T extends Comparable<T>> {
         count--;
     }
 
-    private Node<T> remove(Node<T> node, T element) {
-        if (node == null)
-            return null;
-        int compare = element.compareTo(node.getValue());
+    private Node<T> remove(Node<T> node, final T value) {
+        if (node == null) return null;
+        int compare = value.compareTo(node.value);
         if (compare < 0) {
-            node.setLeft(remove(node.getLeft(), element));
+            node.left = remove(node.left, value);
         } else if (compare > 0) {
-            node.setRight(remove(node.getRight(), element));
+            node.right = remove(node.right, value);
         } else {
-            if (node.getLeft() == null) {
-                final Node<T> right = node.getRight();
+            if (node.left == null) {
+                final Node<T> right = node.right;
                 node.clear();
                 return right;
-            } else if (node.getRight() == null) {
-                final Node<T> left = node.getLeft();
+            } else if (node.right == null) {
+                final Node<T> left = node.left;
                 node.clear();
                 return left;
             } else {
-                final Node<T> leftmost = digLeft(node.getRight());
-                node.setValue(leftmost.getValue());
-                node.setRight(remove(node.getRight(), node.getValue()));
+                final Node<T> leftmost = digLeft(node.right);
+                node.value = leftmost.value;
+                node.right = remove(node.right, node.value);
             }
         }
         return node;
     }
 
     private Node<T> digLeft(Node<T> node) {
-        while (node.getLeft() != null)
-            node = node.getLeft();
+        while (node.left != null) node = node.left;
         return node;
     }
 
-    public boolean contains(T element) {
-        return findNode(root, element) != null;
-    }
-
-    private Node<T> findNode(Node<T> node, T element) {
+    private Node<T> find(Node<T> node, final T element) {
         if (node == null) return null;
-        if (node.getValue().compareTo(element) == 0)
-            return node;
-        if (node.getLeft() == null && node.getRight() == null)
-            return null;
-        return findNode(element.compareTo(node.getValue()) < 0 ? node.getLeft() : node.getRight(), element);
-    }
-
-    public void traverse(TreeTraverseOrder order, Consumer<T> action) {
-        traverse(root, order, action);
-    }
-
-    private void traverse(Node<T> node, TreeTraverseOrder order, Consumer<T> action) {
-        if (node == null) return;
-        switch (order) {
-            case PREORDER: {
-                action.accept(node.getValue());
-                traverse(node.getLeft(), order, action);
-                traverse(node.getRight(), order, action);
-                break;
-            }
-            case INORDER: {
-                traverse(node.getLeft(), order, action);
-                action.accept(node.getValue());
-                traverse(node.getRight(), order, action);
-                break;
-            }
-            case POSTORDER: {
-                traverse(node.getLeft(), order, action);
-                traverse(node.getRight(), order, action);
-                action.accept(node.getValue());
-                break;
-            }
-        }
+        if (node.value.compareTo(element) == 0) return node;
+        if (node.left == null && node.right == null) return null;
+        return find(element.compareTo(node.value) < 0 ? node.left : node.right, element);
     }
 }

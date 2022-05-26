@@ -17,7 +17,7 @@ class BinarySearchTreeTest {
     @BeforeEach
     void setUp() {
         binarySearchTree = new BinarySearchTree<>();
-        Arrays.asList(10, 12, 8, 6, 9, 11, 13).forEach(binarySearchTree::add);
+        Arrays.asList(10, 12, 8, 6, 9, 11, 13).forEach(binarySearchTree::insert);
     }
 
     @Test
