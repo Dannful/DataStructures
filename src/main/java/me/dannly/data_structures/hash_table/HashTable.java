@@ -34,7 +34,7 @@ public abstract class HashTable<K, V> {
     }
 
     protected int normalizeIndex(int index) {
-        return (index & Integer.MAX_VALUE) % capacity;
+        return Math.abs(index) % capacity;
     }
 
     protected abstract EntryWithIndex<K, V> findEntry(K key);
